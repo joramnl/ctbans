@@ -1,0 +1,23 @@
+{
+    "name": "joram/ct-bans",
+    "type": "project",
+    "require": {
+        "illuminate/database": "^8.79",
+        "vlucas/phpdotenv": "^5.4",
+        "kruzya/steam-id-converter": "^1.0",
+        "twig/twig": "^3.3",
+        "nesbot/carbon": "^2.55"
+    },
+    "license": "propetiary",
+    "authors": [
+        {
+            "name": "JoramNL",
+            "email": "nljoram@live.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "System\\": "src/"
+        }
+    }
+}

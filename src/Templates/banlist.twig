@@ -1,0 +1,126 @@
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 my-1">
+            <div class="p-5 py-5 bg-dark text-white rounded-3 h-100 align-items-center position-relative">
+                <h1>CTBans</h1>
+                <hr>
+                <div class="table-responsive w-100">
+                    <table class="table table-hover" style="user-select: none">
+                        <thead>
+                        <tr>
+                            <th scope="col">Added on</th>
+                            <th scope="col">Player</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Time left</th>
+                            <th scope="col">Banned by</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ban in bans %}
+                            <tr>
+                                <td>
+                                    <span data-toggle="tooltip"
+                                          data-placement="top"
+                                          title="{{ ban.timestamp|date('m/d/Y H:i') }}">
+                                        {{ ban.timestamp|humanDiff }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ ban.getPlayerCommunityProfileUrl() }}" target="_blank">
+                                        <span
+                                                data-toggle="tooltip"
+                                                data-placement="left"
+                                                title="{{ ban.perp_steamid }}"
+                                                class="player text-white"
+                                                style="font-weight: normal;">
+                                            <img src="{{ ban.getPlayerAvatar().getBase64Avatar() }}" alt="">
+                                            {{ ban.perp_name }}
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>{{ ban.reason }}</td>
+                                <td style="width: 250px;" class="p-3">
+                                    <div class="progress"
+                                         style="background-color: #333 !important;height: 20px;user-select: none"
+                                         data-toggle="tooltip"
+                                         data-placement="top"
+                                         data-html="true"
+                                         title="
+                                     <strong>Total duration:</strong>  {{ ban.bantime|minutesToHumanReadable }} <br>
+                                     <strong>Time left:</strong> {% if ban.timeleft > 0 %} {{ ban.timeleft|minutesToHumanReadable }} {% else %} Expired {% endif %}"
+                                    >
+                                        {% if ban.timeleft > 0 %}
+                                            {% set percentage = ban.timeleft / ban.bantime * 100 %}
+                                            <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated"
+                                                 role="progressbar" aria-valuenow="{{ percentage }}" aria-valuemin="0"
+                                                 aria-valuemax="100"
+                                                 style="width: {{ percentage }}%;font-weight: bold;">
+                                                {{ ban.timeleft|minutesToHumanReadable }}
+                                            </div>
+                                        {% else %}
+                                            <div class="progress-bar bg-success font-weight-bold" role="progressbar"
+                                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                                 style="font-weight: bold;width: 100%;">
+                                                Expired
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{{ ban.getAdminCommunityProfileUrl() }}" target="_blank">
+                                        <span
+                                                data-toggle="tooltip"
+                                                data-placement="left"
+                                                title="{{ ban.admin_steamid }}"
+                                                class="player text-white"
+                                                style="font-weight: normal;">
+                                            <img src="{{ ban.getAdminAvatar().getBase64Avatar() }}" alt="">
+                                            {{ ban.admin_name }}
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-12">
+                    <nav class="d-flex  justify-content-center">
+                        <ul class="pagination">
+
+                            <li class="page-item {% if previousPage == 0 %} disabled {% endif %}">
+                                <a class="page-link" href="?page={{ previousPage }}" tabindex="-1">Previous</a>
+                            </li>
+
+                            {% for page in pages %}
+                                <li class="page-item {% if page.active %} active {% endif %}"><a class="page-link"
+                                                                                                 href="?page={{ page.id }}">{{ page.id }}</a>
+                                </li>
+                            {% endfor %}
+
+                            <li class="page-item {% if nextPage == 0 %} disabled {% endif %}">
+                                <a class="page-link" href="?page={{ nextPage }}">Next</a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+
+{#                <ul>#}
+{#                    <li>Page: {{ page }}</li>#}
+{#                    <li>Items per page: {{ itemsPerPage }}</li>#}
+{#                    <li>Amount of bans: {{ amountOfBans }}</li>#}
+{#                    <li>Current offset: {{ offset }}</li>#}
+{#                    <li>previousPage: {{ previousPage }}</li>#}
+{#                    <li>nextPage: {{ nextPage }}</li>#}
+{#                </ul>#}
+
+{#                <pre>#}
+{#                    Pages:#}
+{#                    {{ pages|json_encode(constant('JSON_PRETTY_PRINT')) }}#}
+{#                </pre>#}
+            </div>
+        </div>
+    </div>
+</div>
