@@ -57,7 +57,7 @@ class Ban extends Model
 
     public function getAdminCommunityID (): int
     {
-        return $this->getPlayerSteamID()->communityId();
+        return $this->getAdminSteamID()->communityId();
     }
 
     public function getPlayerAvatar() : Avatar
