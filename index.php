@@ -11,11 +11,22 @@ require_once "vendor/autoload.php";
 
 Core::init();
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 10;
+
+
+$search = "";
+
+if ( isset( $_GET[ 'search' ] ) )
+{
+    $search = htmlspecialchars( $_GET[ 'search' ] );
+}
+
+$bans = Ban::where( 'perp_name', 'like', '%'.$search.'%' )
+    ->orWhere( 'perp_steamid', 'like', '%'.$search.'%' );
 
 $page = 1;
 $offset = 0;
-$amountOfBans = Ban::count();
+$amountOfBans = $bans->count();
 $amountOfPages = (int)( $amountOfBans / ITEMS_PER_PAGE ) + 1;
 
 if ( isset( $_GET[ 'page' ] ) && is_numeric( $_GET[ 'page' ] ) )
@@ -24,30 +35,66 @@ if ( isset( $_GET[ 'page' ] ) && is_numeric( $_GET[ 'page' ] ) )
     $page = $_GET[ 'page' ];
     $offset = ( $page - 1 ) * ITEMS_PER_PAGE;
 
-    if ($offset > $amountOfBans || $offset < 0)
+    if ( $offset > $amountOfBans || $offset < 0 )
     {
         $page = $amountOfPages;
         $offset = ( $page - 1 ) * ITEMS_PER_PAGE;
     }
 }
 
+$bans = $bans->orderByDesc( 'timestamp' )->limit( ITEMS_PER_PAGE )->offset( $offset )->get();
+
 
 $pageData = [
-    'bans' => Ban::orderByDesc( 'timestamp' )->limit( ITEMS_PER_PAGE )->offset( $offset )->get(),
+    'bans' => $bans,
     'amountOfBans' => $amountOfBans,
     'itemsPerPage' => ITEMS_PER_PAGE,
     'page' => $page,
     'offset' => $offset,
-    'previousPage' => ($page - 1 > 0) ? $page - 1 : 0,
-    'nextPage' => ($page + 1 > $amountOfPages) ? $page - 1 : 0
+    'previousPage' => ( $page - 1 > 0 ) ? $page - 1 : 0,
+    'nextPage' => ( $page + 1 <= $amountOfPages ) ? $page + 1 : 0,
+    'firstPage' => 1,
+    'lastPage' => $amountOfPages
 ];
 
-for ($i = 1; $i <= $amountOfPages; $i++)
+$pages = [];
+for ( $i = 1; $i <= $amountOfPages; $i++ )
 {
-    $pageData['pages'][] = [
+    $pages[] = [
         "id" => $i,
-        "active" => $i == $page
+        "active" => $i == $page,
+        "disabled" => false
     ];
+}
+
+//$pageData['pages'][];
+
+function getPage ( &$pages, $id )
+{
+    foreach ( $pages as $p )
+    {
+        if ( $p[ "id" ] == $id )
+        {
+            return $p;
+        }
+    }
+
+    return null;
+}
+
+$max = 2;
+for ( $i = -2; $i <= $max; $i++ )
+{
+    $p = getPage( $pages, $page + $i );
+    if ( $p == null )
+    {
+        continue;
+    }
+    $pageData[ 'pages' ][] = $p;
+    if ( $i == $max && sizeof( $pageData[ 'pages' ] ) != 5 )
+    {
+        $max++;
+    }
 }
 
 try

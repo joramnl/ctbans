@@ -19,16 +19,27 @@ class Avatar extends Model
 
     public function updateAvatar ()
     {
-        $this->avatar = self::getAvatarFromSteamAPI( $this->steamid );
+        $this->avatar = $this->steamid . '.jpg';
+        $this->storeAvatar(self::getAvatarFromSteamAPI( $this->steamid ));
         $this->expires = Carbon::now()->addWeek()->toDateTimeString();
         $this->save();
     }
 
-    public function getBase64Avatar (): string
+    public function storeAvatar(string $avatar)
     {
-        return 'data:image/png;base64,' . $this->avatar;
+        $file = getcwd() . '/img/' . $this->avatar;
+//        if (file_exists($file))
+//        {
+//            unlink($file);
+//        }
+
+        file_put_contents($file, $avatar);
     }
 
+    public function getAvatarUrl (): string
+    {
+        return $_ENV['SITE_URL'] . '/img/' . $this->steamid . '.jpg';
+    }
 
     private static function getAvatarFromSteamAPI ( int $steamid ): string
     {
@@ -37,7 +48,7 @@ class Avatar extends Model
             $json = self::url_get_contents( "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" . $_ENV[ 'STEAM_APIKEY' ] . "&steamids=" . $steamid );
             $data = json_decode( $json, true );
             $avatar_url = $data[ 'response' ][ 'players' ][ 0 ][ 'avatarfull' ];
-            return base64_encode( self::url_get_contents( $avatar_url ) );
+            return self::url_get_contents( $avatar_url );
         }
         catch ( Exception $e )
         {

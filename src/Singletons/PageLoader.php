@@ -35,7 +35,10 @@ class PageLoader extends Singleton
     public function init (): void
     {
         $this->twig = new Environment(
-            new FilesystemLoader( getcwd() . '/src/Templates' )
+            new FilesystemLoader( getcwd() . '/src/Templates' ),
+            [
+                'debug' => true
+            ]
         );
 
         $this->addTwigFilters();
