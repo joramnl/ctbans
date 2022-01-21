@@ -2,6 +2,7 @@
 
 use System\Core;
 use System\Models\Ban;
+use System\Models\Cache;
 use System\Singletons\PageLoader;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -21,7 +22,8 @@ if ( isset( $_GET[ 'search' ] ) )
     $search = htmlspecialchars( $_GET[ 'search' ] );
 }
 
-$bans = Ban::where( 'perp_name', 'like', '%'.$search.'%' )
+$bans = Ban::join(Cache::$theTable, Ban::$theTable . '.perp_steamid', '=', Cache::$theTable.'.steamid' )
+    ->where( Cache::$theTable.'.name', 'like', '%'.$search.'%' )
     ->orWhere( 'perp_steamid', 'like', '%'.$search.'%' );
 
 $page = 1;
@@ -54,7 +56,8 @@ $pageData = [
     'previousPage' => ( $page - 1 > 0 ) ? $page - 1 : 0,
     'nextPage' => ( $page + 1 <= $amountOfPages ) ? $page + 1 : 0,
     'firstPage' => 1,
-    'lastPage' => $amountOfPages
+    'lastPage' => $amountOfPages,
+    'search' => $search
 ];
 
 $pages = [];

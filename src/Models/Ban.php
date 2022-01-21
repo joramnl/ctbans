@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Kruzya\SteamIdConverter\Exception\InvalidSteamIdException;
 use Kruzya\SteamIdConverter\SteamID;
-use System\Controllers\AvatarController;
+use System\Controllers\CacheController;
 
 /**
  * @property $ban_id
@@ -27,18 +27,19 @@ class Ban extends Model
     public $timestamps = false;
     public $primaryKey = "ban_id";
     public $table = 'CTBan_Log';
+    public static $theTable = 'CTBan_Log';
 
-    public function getPlayerSteamID() : SteamID
+    public function getPlayerSteamID() : string
     {
-        return $this->getSteamID($this->perp_steamid);
+        return $this->perp_steamid;
     }
 
-    public function getAdminSteamID() : SteamID
+    public function getAdminSteamID() : string
     {
-        return $this->getSteamID($this->admin_steamid);
+        return $this->admin_steamid;
     }
 
-    private function getSteamID(string $steamid) : SteamID
+    private function convertSteamId( string $steamid) : SteamID
     {
         try
         {
@@ -52,22 +53,22 @@ class Ban extends Model
 
     public function getPlayerCommunityID (): int
     {
-        return $this->getPlayerSteamID()->communityId();
+        return $this->convertSteamId($this->getPlayerSteamID())->communityId();
     }
 
     public function getAdminCommunityID (): int
     {
-        return $this->getAdminSteamID()->communityId();
+        return $this->convertSteamId($this->getAdminSteamID())->communityId();
     }
 
-    public function getPlayerAvatar() : Avatar
+    public function getPlayerCache() : Cache
     {
-        return AvatarController::getAvatar($this->getPlayerSteamID());
+        return CacheController::get($this->getPlayerSteamID());
     }
 
-    public function getAdminAvatar() : Avatar
+    public function getAdminCache() : Cache
     {
-        return AvatarController::getAvatar($this->getAdminSteamID());
+        return CacheController::get($this->getAdminSteamID());
     }
 
     public function getPlayerCommunityProfileUrl (): string

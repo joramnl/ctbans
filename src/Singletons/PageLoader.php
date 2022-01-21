@@ -60,9 +60,16 @@ class PageLoader extends Singleton
             }
         } ) );
 
-        $this->twig->addFilter( new TwigFilter( 'minutesToHumanReadable', function ( int $minutes )
+        $this->twig->addFilter( new TwigFilter( 'minutesToHumanReadable', function ( int $timestamp )
         {
-            return CarbonInterval::minutes( $minutes )->cascade()->forHumans();
+            return CarbonInterval::minutes( $timestamp )->cascade()->forHumans();
+        } ) );
+
+        $this->twig->addFilter( new TwigFilter( 'epoch', function ( string $datetime )
+        {
+            $date = Carbon::parse( $datetime );
+
+            return $date->timestamp;
         } ) );
     }
 

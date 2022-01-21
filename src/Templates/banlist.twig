@@ -5,7 +5,9 @@
                 <a href="index.php"><h1 class="text-white">CTBans</h1></a>
                 <hr>
                 <form action="index.php" class="pb-4">
-                    <input type="text" class="form-control" name="search" placeholder="Search for a name or steamid and press enter...">
+                    <input type="hidden" name="page" value="{{ page }}">
+                    <input type="text" class="form-control" name="search"
+                           placeholder="Search for a name or steamid and press enter...">
                 </form>
                 <div class="table-responsive w-100">
                     <table class="table table-hover" style="user-select: none">
@@ -36,8 +38,9 @@
                                                 title="{{ ban.perp_steamid }}"
                                                 class="player text-white"
                                                 style="font-weight: normal;">
-                                            <img src="{{ ban.getPlayerAvatar().getAvatarUrl() }}" alt="">
-                                            {{ ban.perp_name }}
+                                            <img src="{{ ban.getPlayerCache().getAvatarUrl() }}?v={{ ban.getPlayerCache().expires|epoch }}"
+                                                 alt="">
+                                            {{ ban.getPlayerCache().getName() }}
                                         </span>
                                     </a>
                                 </td>
@@ -77,60 +80,72 @@
                                                 title="{{ ban.admin_steamid }}"
                                                 class="player text-white"
                                                 style="font-weight: normal;">
-                                            <img src="{{ ban.getAdminAvatar().getAvatarUrl() }}" alt="">
-                                            {{ ban.admin_name }}
+                                            <img src="{{ ban.getAdminCache().getAvatarUrl() }}?v={{ ban.getAdminCache().expires|epoch }}"
+                                                 alt="">
+                                            {{ ban.getAdminCache().getName() }}
                                         </span>
                                     </a>
                                 </td>
                             </tr>
                         {% endfor %}
+                        {% if bans is empty %}
+                            <tr>
+                                <td colspan="5">No bans found</td>
+                            </tr>
+                        {% endif %}
                         </tbody>
                     </table>
                 </div>
 
+                <!-- Pagination -->
                 <div class="col-12">
                     <nav class="d-flex  justify-content-center">
                         <ul class="pagination">
 
                             <li class="page-item {% if firstPage == page %} disabled {% endif %}">
-                                <a class="page-link" href="?page={{ firstPage }}" tabindex="-1">«</a>
+                                <a class="page-link" href="?{{ {page: firstPage, search}|url_encode }}" tabindex="-1">«</a>
                             </li>
 
                             <li class="page-item {% if previousPage == 0 %} disabled {% endif %}">
-                                <a class="page-link" href="?page={{ previousPage }}" tabindex="-1">Previous</a>
+                                <a class="page-link" href="?{{ {page: previousPage, search}|url_encode }}" tabindex="-1">Previous</a>
                             </li>
 
                             {% for page in pages %}
-                                <li class="page-item {% if page.active %} active {% endif %} {% if disabled %} disabled {% endif %}"><a class="page-link"
-                                                                                                 href="?page={{ page.id }}">{{ page.id }}</a>
+                                <li class="page-item
+                                    {% if page.active %} active {% endif %}
+                                    {% if disabled %} disabled {% endif %}">
+                                    <a class="page-link"
+                                        href="?{{ {page: page.id, search}|url_encode }}">
+                                        {{ page.id }}
+                                    </a>
                                 </li>
                             {% endfor %}
 
                             <li class="page-item {% if nextPage == 0 %} disabled {% endif %}">
-                                <a class="page-link" href="?page={{ nextPage }}">Next</a>
+                                <a class="page-link" href="?{{ {page: nextPage, search}|url_encode }}">Next</a>
                             </li>
 
                             <li class="page-item {% if lastPage == page %} disabled {% endif %}">
-                                <a class="page-link" href="?page={{ lastPage }}" tabindex="-1">»</a>
+                                <a class="page-link" href="?{{ {page: lastPage, search}|url_encode }}" tabindex="-1">»</a>
                             </li>
 
                         </ul>
                     </nav>
                 </div>
 
-{#                <ul>#}
-{#                    <li>Page: {{ page }}</li>#}
-{#                    <li>Items per page: {{ itemsPerPage }}</li>#}
-{#                    <li>Amount of bans: {{ amountOfBans }}</li>#}
-{#                    <li>Current offset: {{ offset }}</li>#}
-{#                    <li>previousPage: {{ previousPage }}</li>#}
-{#                    <li>nextPage: {{ nextPage }}</li>#}
-{#                </ul>#}
+                {# <ul> #}
+                {# <li>Page: {{ page }}</li> #}
+                {# <li>Items per page: {{ itemsPerPage }}</li> #}
+                {# <li>Amount of bans: {{ amountOfBans }}</li> #}
+                {# <li>Current offset: {{ offset }}</li> #}
+                {# <li>previousPage: {{ previousPage }}</li> #}
+                {# <li>nextPage: {{ nextPage }}</li> #}
+                {# </ul> #}
 
-{#                <pre>#}
-{#                    Pages:#}
-{#                    {{ pages|json_encode(constant('JSON_PRETTY_PRINT')) }}#}
-{#                </pre>#}
+                {# <pre> #}
+                {# Pages: #}
+                {# {{ pages|json_encode(constant('JSON_PRETTY_PRINT')) }} #}
+                {# </pre> #}
             </div>
         </div>
     </div>
