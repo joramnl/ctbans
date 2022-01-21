@@ -22,7 +22,7 @@ if ( isset( $_GET[ 'search' ] ) )
     $search = htmlspecialchars( $_GET[ 'search' ] );
 }
 
-$bans = Ban::join(Cache::$theTable, Ban::$theTable . '.perp_steamid', '=', Cache::$theTable.'.steamid' )
+$bans = Ban::leftJoin(Cache::$theTable, Ban::$theTable . '.perp_steamid', '=', Cache::$theTable.'.steamid' )
     ->where( Cache::$theTable.'.name', 'like', '%'.$search.'%' )
     ->orWhere( 'perp_steamid', 'like', '%'.$search.'%' );
 
